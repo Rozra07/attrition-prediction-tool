@@ -5,10 +5,10 @@ from sklearn.preprocessing import StandardScaler
 import pickle
 
 # Load updated trained model
-with open("new_attrition_model.pkl", "rb") as model_file:
+with open("filtered_attrition_model.pkl", "rb") as model_file:
     model = pickle.load(model_file)
 
-with open("new_scaler.pkl", "rb") as scaler_file:
+with open("filtered_scaler.pkl", "rb") as scaler_file:
     scaler = pickle.load(scaler_file)
 
 # Define the Streamlit app
