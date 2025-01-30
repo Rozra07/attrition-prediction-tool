@@ -1,13 +1,13 @@
 import streamlit as st
 import numpy as np
-import joblib
+import pickle
 
 # Load trained model and scaler with error handling
 try:
     with open("filtered_attrition_model.pkl", "rb") as model_file:
-        model = joblib.load(model_file)
+        model = pickle.load(model_file)
     with open("filtered_scaler.pkl", "rb") as scaler_file:
-        scaler = joblib.load(scaler_file)
+        scaler = pickle.load(scaler_file)
 except Exception as e:
     st.error(f"Error loading model or scaler: {e}")
     st.stop()
@@ -47,7 +47,7 @@ features = np.array([
 expected_features = scaler.n_features_in_
 if features.shape[1] != expected_features:
     st.error(f"Feature mismatch error! Expected {expected_features} features but got {features.shape[1]}. Please retrain the model with updated features.")
-st.stop()
+    st.stop()
 
 # Scale the input data
 features_scaled = scaler.transform(features)
