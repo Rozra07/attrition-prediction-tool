@@ -5,9 +5,9 @@ from sklearn.preprocessing import StandardScaler
 
 # Load trained model and scaler with error handling
 try:
-    with open("filtered_attrition_model_fixed.pkl", "rb") as model_file:
+    with open("filtered_attrition_model_fixed1.pkl", "rb") as model_file:
         model = joblib.load(model_file)
-    with open("filtered_scaler_fixed.pkl", "rb") as scaler_file:
+    with open("filtered_scaler_fixed1.pkl", "rb") as scaler_file:
         scaler = joblib.load(scaler_file)
 except Exception as e:
     st.error(f"Error loading model or scaler: {e}")
