@@ -26,25 +26,36 @@ linkedin_activity = st.slider("LinkedIn Activity Score (0 = Low, 1 = High)", 0, 
 
 # Convert categorical data
 job_role_mapping = {"Sales": 0, "HR": 1, "Tech": 2, "Operations": 3, "Finance": 4}
-job_role_encoded = job_role_mapping[job_role]
+job_role_encoded = [0, 0, 0, 0]
+role_index = job_role_mapping[job_role] - 1  # Adjust index for one-hot encoding
+if role_index >= 0:
+    job_role_encoded[role_index] = 1  # One-hot encoding
 
 # Create feature array
 features = np.array([
     years_at_company, performance_rating, salary_change,
-    training_attended, linkedin_activity, estimated_attrition, job_role_encoded
-]).reshape(1, -1)
+    training_attended, linkedin_activity, estimated_attrition
+] + job_role_encoded).reshape(1, -1)
 
-# Scale the input data
-features_scaled = scaler.transform(features)
+# Debugging: Print the feature shape
+st.write(f"Feature shape: {features.shape}")
+st.write(f"Expected shape: {scaler.n_features_in_}")
 
-# Predict attrition probability
-if st.button("Predict Attrition Risk"):
-    attrition_prob = model.predict_proba(features_scaled)[:, 1][0] * 100
-    st.write(f"### Estimated Attrition Probability: {attrition_prob:.2f}%")
+# Ensure feature count matches scaler expectations
+if features.shape[1] != scaler.n_features_in_:
+    st.error("Feature mismatch error! Please check the input fields and retrain the model.")
+else:
+    # Scale the input data
+    features_scaled = scaler.transform(features)
 
-    if attrition_prob > 70:
-        st.error("High Attrition Risk! Consider retention strategies.")
-    elif attrition_prob > 40:
-        st.warning("Moderate Attrition Risk! Keep an eye on engagement.")
-    else:
-        st.success("Low Attrition Risk. Employee likely to stay.")
+    # Predict attrition probability
+    if st.button("Predict Attrition Risk"):
+        attrition_prob = model.predict_proba(features_scaled)[:, 1][0] * 100
+        st.write(f"### Estimated Attrition Probability: {attrition_prob:.2f}%")
+
+        if attrition_prob > 70:
+            st.error("High Attrition Risk! Consider retention strategies.")
+        elif attrition_prob > 40:
+            st.warning("Moderate Attrition Risk! Keep an eye on engagement.")
+        else:
+            st.success("Low Attrition Risk. Employee likely to stay.")
