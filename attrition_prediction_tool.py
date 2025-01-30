@@ -10,8 +10,11 @@ from webdriver_manager.chrome import ChromeDriverManager
 import time
 
 # Load trained model (for later deployment, we would save and load it properly)
-model = pickle.loads(b'')  # Replace with actual model if saving/loading
-scaler = pickle.loads(b'')  # Replace with actual scaler
+with open("attrition_model.pkl", "rb") as model_file:
+    model = pickle.load(model_file)
+
+with open("scaler.pkl", "rb") as scaler_file:
+    scaler = pickle.load(scaler_file)
 
 # Define the Streamlit app
 st.title("Employee Attrition Prediction Tool")
