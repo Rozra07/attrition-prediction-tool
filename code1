@@ -1,0 +1,76 @@
+import streamlit as st
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+import pickle
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+import time
+
+# Load trained model (for later deployment, we would save and load it properly)
+model = pickle.loads(b'')  # Replace with actual model if saving/loading
+scaler = pickle.loads(b'')  # Replace with actual scaler
+
+# Define the Streamlit app
+st.title("Employee Attrition Prediction Tool")
+st.write("Enter employee details to predict attrition risk.")
+
+# Input fields
+years_at_company = st.slider("Years at Company", 1, 30, 5)
+job_role = st.selectbox("Job Role", ["Sales", "HR", "Tech", "Operations", "Finance"])
+performance_rating = st.slider("Performance Rating", 1, 5, 3)
+salary_change = st.slider("Salary Change in % (last year)", -10, 50, 5)
+training_attended = st.slider("Training Sessions Attended (last 6 months)", 0, 20, 5)
+linkedin_profile = st.text_input("Enter Employee's LinkedIn Profile URL")
+estimated_attrition = st.slider("Estimated Attrition Probability (%)", 0, 100, 50)
+
+# LinkedIn Scraping Function
+def scrape_linkedin_profile(profile_url):
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")  # Run in headless mode
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=options)
+    
+    try:
+        driver.get(profile_url)
+        time.sleep(5)  # Allow time for page to load
+        
+        # Extract recent activity, job changes, or engagement
+        recent_activity = driver.find_elements(By.CLASS_NAME, "pv-recent-activity-section")
+        activity_score = len(recent_activity)  # Simple proxy for engagement
+        
+    except Exception as e:
+        activity_score = 0  # Default if scraping fails
+    finally:
+        driver.quit()
+    
+    return activity_score
+
+linkedin_activity = scrape_linkedin_profile(linkedin_profile)
+
+# Convert categorical data
+job_role_mapping = {"Sales": 0, "HR": 1, "Tech": 2, "Operations": 3, "Finance": 4}
+job_role_encoded = job_role_mapping[job_role]
+
+# Create feature array
+features = np.array([
+    years_at_company, performance_rating, salary_change,
+    training_attended, linkedin_activity, estimated_attrition, job_role_encoded
+]).reshape(1, -1)
+
+# Scale the input data
+features_scaled = scaler.transform(features)
+
+# Predict attrition probability
+if st.button("Predict Attrition Risk"):
+    attrition_prob = model.predict_proba(features_scaled)[:, 1][0] * 100
+    st.write(f"### Estimated Attrition Probability: {attrition_prob:.2f}%")
+
+    if attrition_prob > 70:
+        st.error("High Attrition Risk! Consider retention strategies.")
+    elif attrition_prob > 40:
+        st.warning("Moderate Attrition Risk! Keep an eye on engagement.")
+    else:
+        st.success("Low Attrition Risk. Employee likely to stay.")
