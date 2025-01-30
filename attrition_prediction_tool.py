@@ -30,10 +30,9 @@ previous_company = st.selectbox("Previous Company Type", ["Big MNC (Google, Appl
 
 # Convert categorical data
 job_role_mapping = {"Sales": 0, "HR": 1, "Tech": 2, "Operations": 3, "Finance": 4, "Marketing": 5, "Consulting": 6, "R&D": 7, "Product Management": 8}
-job_role_encoded = [0] * 8
-role_index = job_role_mapping[job_role] - 1  # Adjust index for one-hot encoding
-if role_index >= 0:
-    job_role_encoded[role_index] = 1  # One-hot encoding
+job_role_encoded = [0] * 9  # Ensure this matches the number of job roles
+role_index = job_role_mapping[job_role]  # Correct index without -1 adjustment
+job_role_encoded[role_index] = 1  # One-hot encoding
 
 college_tier_mapping = {"Tier 1": 3, "Tier 2": 2, "Tier 3": 1}
 company_favorability_mapping = {"High": 3, "Medium": 2, "Low": 1}
@@ -46,13 +45,14 @@ features = np.array([
     college_tier_mapping[college_tier], company_favorability_mapping[company_favorability], previous_company_mapping[previous_company]
 ] + job_role_encoded).reshape(1, -1)
 
-# Debugging: Print the feature shape
-st.write(f"Feature shape: {features.shape}")
-st.write(f"Expected shape: {scaler.n_features_in_}")
+# Debugging: Print feature shape
+expected_features = scaler.n_features_in_
+st.write(f"Feature shape: {features.shape[1]}")
+st.write(f"Expected shape: {expected_features}")
 
 # Ensure feature count matches scaler expectations
-if features.shape[1] != scaler.n_features_in_:
-    st.error("Feature mismatch error! Please check the input fields and retrain the model.")
+if features.shape[1] != expected_features:
+    st.error(f"Feature mismatch error! Expected {expected_features} features but got {features.shape[1]}. Please retrain the model with updated features.")
 else:
     # Scale the input data
     features_scaled = scaler.transform(features)
