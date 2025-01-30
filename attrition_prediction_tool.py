@@ -4,11 +4,11 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 import pickle
 
-# Load trained model (for later deployment, we would save and load it properly)
-with open("attrition_model.pkl", "rb") as model_file:
+# Load updated trained model
+with open("new_attrition_model.pkl", "rb") as model_file:
     model = pickle.load(model_file)
 
-with open("scaler.pkl", "rb") as scaler_file:
+with open("new_scaler.pkl", "rb") as scaler_file:
     scaler = pickle.load(scaler_file)
 
 # Define the Streamlit app
