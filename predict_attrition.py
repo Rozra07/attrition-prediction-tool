@@ -1,13 +1,13 @@
 import streamlit as st
 import numpy as np
-import pickle
+import joblib
 
 # Load trained model and scaler with error handling
 try:
-    with open("filtered_attrition_model.pkl", "rb") as model_file:
-        model = pickle.load(model_file)
-    with open("filtered_scaler.pkl", "rb") as scaler_file:
-        scaler = pickle.load(scaler_file)
+    with open("filtered_attrition_model_fixed.pkl", "rb") as model_file:
+        model = joblib.load(model_file)
+    with open("filtered_scaler_fixed.pkl", "rb") as scaler_file:
+        scaler = joblib.load(scaler_file)
 except Exception as e:
     st.error(f"Error loading model or scaler: {e}")
     st.stop()
