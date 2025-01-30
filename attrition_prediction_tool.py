@@ -3,11 +3,6 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 import pickle
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
-import time
 
 # Load trained model (for later deployment, we would save and load it properly)
 with open("attrition_model.pkl", "rb") as model_file:
@@ -26,32 +21,8 @@ job_role = st.selectbox("Job Role", ["Sales", "HR", "Tech", "Operations", "Finan
 performance_rating = st.slider("Performance Rating", 1, 5, 3)
 salary_change = st.slider("Salary Change in % (last year)", -10, 50, 5)
 training_attended = st.slider("Training Sessions Attended (last 6 months)", 0, 20, 5)
-linkedin_profile = st.text_input("Enter Employee's LinkedIn Profile URL")
 estimated_attrition = st.slider("Estimated Attrition Probability (%)", 0, 100, 50)
-
-# LinkedIn Scraping Function
-def scrape_linkedin_profile(profile_url):
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")  # Run in headless mode
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=options)
-    
-    try:
-        driver.get(profile_url)
-        time.sleep(5)  # Allow time for page to load
-        
-        # Extract recent activity, job changes, or engagement
-        recent_activity = driver.find_elements(By.CLASS_NAME, "pv-recent-activity-section")
-        activity_score = len(recent_activity)  # Simple proxy for engagement
-        
-    except Exception as e:
-        activity_score = 0  # Default if scraping fails
-    finally:
-        driver.quit()
-    
-    return activity_score
-
-linkedin_activity = scrape_linkedin_profile(linkedin_profile)
+linkedin_activity = st.slider("LinkedIn Activity Score (0 = Low, 1 = High)", 0, 1, 0)
 
 # Convert categorical data
 job_role_mapping = {"Sales": 0, "HR": 1, "Tech": 2, "Operations": 3, "Finance": 4}
