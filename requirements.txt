@@ -1,0 +1,7 @@
+streamlit
+numpy
+pandas
+scikit-learn
+selenium
+webdriver-manager
+pickle-mixin
